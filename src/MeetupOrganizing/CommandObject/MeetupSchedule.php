@@ -9,8 +9,10 @@
 namespace MeetupOrganizing\CommandObject;
 
 
+use Exception;
 use MeetupOrganizing\Entity\ScheduledDate;
 use MeetupOrganizing\Entity\UserId;
+use MeetupOrganizing\Validation\FormErrorCollection;
 
 class MeetupSchedule
 {
@@ -46,7 +48,7 @@ class MeetupSchedule
         int $wasCancelled = 0
     ) {
         $this->organizerId = $organizerId;
-        $this->name= $name;
+        $this->name = $name;
         $this->description = $description;
         $this->scheduledFor = $scheduledFor;
         $this->wasCancelled = $wasCancelled;
@@ -90,6 +92,25 @@ class MeetupSchedule
     public function wasCancelled(): int
     {
         return $this->wasCancelled;
+    }
+
+    public function validate(): FormErrorCollection
+    {
+        $collection = new FormErrorCollection();
+
+        if (empty($this->name)) {
+            $collection->push('name', 'Provide a name');
+        }
+        if (empty($this->description)) {
+            $collection->push('description', 'Provide a description');
+        }
+        try {
+            $this->scheduledFor();
+        } catch (Exception $exception) {
+            $collection->push('scheduleFor', 'Invalid date/time');
+        }
+
+        return $collection;
     }
 
 }

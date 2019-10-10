@@ -38,7 +38,7 @@ class MeetupScheduler
      * @return int
      */
     public function schedule(MeetupSchedule $meetupSchedule): int {
-        $meetupEntity = new Meetup(
+        $meetupEntity = Meetup::create(
             $meetupSchedule->organizerId(),
             $meetupSchedule->name(),
             $meetupSchedule->description(),

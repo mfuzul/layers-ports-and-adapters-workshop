@@ -11,6 +11,7 @@ use MeetupOrganizing\Entity\MeetupRepository;
 use MeetupOrganizing\Entity\ScheduledDate;
 use MeetupOrganizing\Service\MeetupScheduler;
 use MeetupOrganizing\Session;
+use MeetupOrganizing\Validation\FormErrorCollection;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Zend\Diactoros\Response\RedirectResponse;
@@ -56,7 +57,7 @@ final class ScheduleMeetupController
         ResponseInterface $response,
         callable $next
     ): ResponseInterface {
-        $formErrors = [];
+        $formErrors = new FormErrorCollection();
         $formData = [
             // This is a nice place to set some defaults
             'scheduleForTime' => '20:00'
@@ -65,21 +66,16 @@ final class ScheduleMeetupController
         if ($request->getMethod() === 'POST') {
             $formData = $request->getParsedBody();
 
-            if (empty($formData['name'])) {
-                $formErrors['name'][] = 'Provide a name';
-            }
-            if (empty($formData['description'])) {
-                $formErrors['description'][] = 'Provide a description';
-            }
-            try {
-                ScheduledDate::fromString(
-                    $formData['scheduleForDate'] . ' ' . $formData['scheduleForTime']
-                );
-            } catch (Exception $exception) {
-                $formErrors['scheduleFor'][] = 'Invalid date/time';
-            }
+            $meetupSchedule = new MeetupSchedule(
+                $this->session->getLoggedInUser()->userId()->asInt(),
+                $formData['name'],
+                $formData['description'],
+                $formData['scheduleForDate'] . ' ' . $formData['scheduleForTime']
+            );
 
-            if (empty($formErrors)) {
+            $formErrors = $meetupSchedule->validate();
+
+            if ($formErrors->isEmpty()) {
                 $meetupId = $this->meetupScheduler
                     ->schedule(
                         new MeetupSchedule(
@@ -108,7 +104,7 @@ final class ScheduleMeetupController
                 'schedule-meetup.html.twig',
                 [
                     'formData' => $formData,
-                    'formErrors' => $formErrors
+                    'formErrors' => $formErrors->asArray(),
                 ]
             )
         );

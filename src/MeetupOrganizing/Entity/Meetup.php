@@ -9,6 +9,8 @@ declare(strict_types=1);
 
 namespace MeetupOrganizing\Entity;
 
+use Assert\Assertion;
+
 class Meetup extends AbstractEntity
 {
     /** @var int */
@@ -38,18 +40,48 @@ class Meetup extends AbstractEntity
      * @param ScheduledDate $scheduledFor
      * @param int $wasCancelled
      */
-    public function __construct(
+    private function __construct(
         UserId $organizerId,
         string $name,
         string $description,
         ScheduledDate $scheduledFor,
-        int $wasCancelled = 0
+        int $wasCancelled
     ) {
         $this->organizerId = $organizerId;
         $this->name = $name;
         $this->description = $description;
         $this->scheduledFor = $scheduledFor;
         $this->wasCancelled = $wasCancelled;
+    }
+
+    /**
+     * @param UserId $organizerId
+     * @param string $name
+     * @param string $description
+     * @param ScheduledDate $scheduledFor
+     * @param int $wasCancelled
+     *
+     * @return Meetup
+     *
+     * @throws \Assert\AssertionFailedException
+     */
+    public static function create(
+        UserId $organizerId,
+        string $name,
+        string $description,
+        ScheduledDate $scheduledFor,
+        int $wasCancelled = 0
+    ): Meetup {
+        Assertion::notBlank($name, 'Name cannot be an empty string');
+        Assertion::notBlank($description, 'Description cannot be an empty string');
+
+        return new self(
+            $organizerId,
+            $name,
+            $description,
+            $scheduledFor,
+            $wasCancelled
+        );
     }
 
     /** {@inheritdoc} */
