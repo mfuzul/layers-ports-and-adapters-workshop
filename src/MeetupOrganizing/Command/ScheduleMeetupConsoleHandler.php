@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace MeetupOrganizing\Command;
 
 use Doctrine\DBAL\Connection;
+use MeetupOrganizing\CommandObject\MeetupSchedule;
 use MeetupOrganizing\Entity\Meetup;
 use MeetupOrganizing\Entity\MeetupRepository;
 use MeetupOrganizing\Entity\ScheduledDate;
@@ -27,10 +28,12 @@ final class ScheduleMeetupConsoleHandler
     public function handle(Args $args, IO $io): int
     {
         $this->meetupScheduler->schedule(
-            (int) $args->getArgument('organizerId'),
-            $args->getArgument('name'),
-            $args->getArgument('description'),
-            $args->getArgument('scheduledFor')
+            new MeetupSchedule(
+                (int) $args->getArgument('organizerId'),
+                $args->getArgument('name'),
+                $args->getArgument('description'),
+                $args->getArgument('scheduledFor')
+            )
         );
 
         $io->writeLine('<success>Scheduled the meetup successfully</success>');

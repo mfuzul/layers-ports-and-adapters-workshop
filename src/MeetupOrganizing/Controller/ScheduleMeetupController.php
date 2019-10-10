@@ -5,6 +5,7 @@ namespace MeetupOrganizing\Controller;
 
 use Doctrine\DBAL\Connection;
 use Exception;
+use MeetupOrganizing\CommandObject\MeetupSchedule;
 use MeetupOrganizing\Entity\Meetup;
 use MeetupOrganizing\Entity\MeetupRepository;
 use MeetupOrganizing\Entity\ScheduledDate;
@@ -79,12 +80,15 @@ final class ScheduleMeetupController
             }
 
             if (empty($formErrors)) {
-                $meetupId = $this->meetupScheduler->schedule(
-                    $this->session->getLoggedInUser()->userId()->asInt(),
-                    $formData['name'],
-                    $formData['description'],
-                    $formData['scheduleForDate'] . ' ' . $formData['scheduleForTime']
-                );
+                $meetupId = $this->meetupScheduler
+                    ->schedule(
+                        new MeetupSchedule(
+                           $this->session->getLoggedInUser()->userId()->asInt(),
+                           $formData['name'],
+                           $formData['description'],
+                           $formData['scheduleForDate'] . ' ' . $formData['scheduleForTime']
+                        )
+                    );
 
                 $this->session->addSuccessFlash('Your meetup was scheduled successfully');
 

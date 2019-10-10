@@ -32,23 +32,23 @@ class Meetup extends AbstractEntity
     /**
      * Meetup constructor.
      *
-     * @param int $organizerId
+     * @param UserId $organizerId
      * @param string $name
      * @param string $description
-     * @param string $scheduledFor
+     * @param ScheduledDate $scheduledFor
      * @param int $wasCancelled
      */
     public function __construct(
-        int $organizerId,
+        UserId $organizerId,
         string $name,
         string $description,
-        string $scheduledFor,
+        ScheduledDate $scheduledFor,
         int $wasCancelled = 0
     ) {
-        $this->organizerId = UserId::fromInt($organizerId);
+        $this->organizerId = $organizerId;
         $this->name = $name;
         $this->description = $description;
-        $this->scheduledFor = ScheduledDate::fromString($scheduledFor);
+        $this->scheduledFor = $scheduledFor;
         $this->wasCancelled = $wasCancelled;
     }
 

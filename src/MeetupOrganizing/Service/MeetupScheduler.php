@@ -9,6 +9,7 @@
 namespace MeetupOrganizing\Service;
 
 
+use MeetupOrganizing\CommandObject\MeetupSchedule;
 use MeetupOrganizing\Entity\Meetup;
 use MeetupOrganizing\Entity\MeetupRepository;
 
@@ -32,27 +33,17 @@ class MeetupScheduler
      * Generate meetup entity, save through repository
      * and return the id of the last saved meetup.
      *
-     * @param int $organizerId
-     * @param string $name
-     * @param string $description
-     * @param string $scheduledFor
-     * @param int $wasCancelled
+     * @param MeetupSchedule $meetupSchedule
      *
      * @return int
      */
-    public function schedule(
-        int $organizerId,
-        string $name,
-        string $description,
-        string $scheduledFor,
-        int $wasCancelled = 0
-    ): int {
+    public function schedule(MeetupSchedule $meetupSchedule): int {
         $meetupEntity = new Meetup(
-            $organizerId,
-            $name,
-            $description,
-            $scheduledFor,
-            $wasCancelled
+            $meetupSchedule->organizerId(),
+            $meetupSchedule->name(),
+            $meetupSchedule->description(),
+            $meetupSchedule->scheduledFor(),
+            $meetupSchedule->wasCancelled()
         );
 
         return $this->meetupRepository->save($meetupEntity);
