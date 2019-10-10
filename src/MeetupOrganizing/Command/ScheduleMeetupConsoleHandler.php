@@ -8,6 +8,7 @@ use MeetupOrganizing\Entity\Meetup;
 use MeetupOrganizing\Entity\MeetupRepository;
 use MeetupOrganizing\Entity\ScheduledDate;
 use MeetupOrganizing\Entity\UserId;
+use MeetupOrganizing\Service\MeetupScheduler;
 use Webmozart\Console\Api\Args\Args;
 use Webmozart\Console\Api\IO\IO;
 
@@ -16,22 +17,20 @@ final class ScheduleMeetupConsoleHandler
     /**
      * @var MeetupRepository
      */
-    private $meetupRepository;
+    private $meetupScheduler;
 
-    public function __construct(MeetupRepository $meetupRepository)
+    public function __construct(MeetupScheduler $meetupScheduler)
     {
-        $this->meetupRepository = $meetupRepository;
+        $this->meetupScheduler = $meetupScheduler;
     }
 
     public function handle(Args $args, IO $io): int
     {
-        $this->meetupRepository->save(
-            new Meetup(
-                (int) $args->getArgument('organizerId'),
-                $args->getArgument('name'),
-                $args->getArgument('description'),
-                $args->getArgument('scheduledFor')
-            )
+        $this->meetupScheduler->schedule(
+            (int) $args->getArgument('organizerId'),
+            $args->getArgument('name'),
+            $args->getArgument('description'),
+            $args->getArgument('scheduledFor')
         );
 
         $io->writeLine('<success>Scheduled the meetup successfully</success>');

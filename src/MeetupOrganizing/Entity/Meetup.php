@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace MeetupOrganizing\Entity;
 
-
 class Meetup extends AbstractEntity
 {
     /** @var int */

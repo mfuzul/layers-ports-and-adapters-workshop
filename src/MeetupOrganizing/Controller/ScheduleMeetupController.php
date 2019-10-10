@@ -8,6 +8,7 @@ use Exception;
 use MeetupOrganizing\Entity\Meetup;
 use MeetupOrganizing\Entity\MeetupRepository;
 use MeetupOrganizing\Entity\ScheduledDate;
+use MeetupOrganizing\Service\MeetupScheduler;
 use MeetupOrganizing\Session;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -35,18 +36,18 @@ final class ScheduleMeetupController
     /**
      * @var MeetupRepository
      */
-    private $meetupRepository;
+    private $meetupScheduler;
 
     public function __construct(
         Session $session,
         TemplateRendererInterface $renderer,
         RouterInterface $router,
-        MeetupRepository $meetupRepository
+        MeetupScheduler $meetupScheduler
     ) {
         $this->session = $session;
         $this->renderer = $renderer;
         $this->router = $router;
-        $this->meetupRepository = $meetupRepository;
+        $this->meetupScheduler = $meetupScheduler;
     }
 
     public function __invoke(
@@ -78,14 +79,11 @@ final class ScheduleMeetupController
             }
 
             if (empty($formErrors)) {
-                $meetupId = $this->meetupRepository->save(
-                    new Meetup(
-                        $this->session->getLoggedInUser()->userId()->asInt(),
-                        $formData['name'],
-                        $formData['description'],
-                        $formData['scheduleForDate'] . ' ' . $formData['scheduleForTime'],
-                        0
-                    )
+                $meetupId = $this->meetupScheduler->schedule(
+                    $this->session->getLoggedInUser()->userId()->asInt(),
+                    $formData['name'],
+                    $formData['description'],
+                    $formData['scheduleForDate'] . ' ' . $formData['scheduleForTime']
                 );
 
                 $this->session->addSuccessFlash('Your meetup was scheduled successfully');
